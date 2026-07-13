@@ -1,0 +1,88 @@
+name: Build APK
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Struktura projektu Android
+        run: |
+          flutter create --platforms=android --org pl.reiro --project-name eksplorator .
+
+      - name: Przywroc nasza konfiguracje Androida
+        run: |
+          git checkout -- android/app/build.gradle
+          git checkout -- android/build.gradle
+          git checkout -- android/settings.gradle
+          git checkout -- android/gradle.properties
+          git checkout -- android/app/src/main/AndroidManifest.xml
+          mkdir -p android/app/src/main/res/xml
+          git checkout -- android/app/src/main/res/xml/file_paths.xml
+
+      - name: Keystore (staly podpis)
+        env:
+          KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > android/app/keystore.jks
+            echo "Uzyto keystore z sekretu"
+          else
+            keytool -genkey -v \
+              -keystore android/app/keystore.jks \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -alias eksplorator \
+              -storepass eksplorator -keypass eksplorator \
+              -dname "CN=Eksplorator, OU=REIRO, O=REIRO, L=Podegrodzie, C=PL"
+            echo "::warning::Wygenerowano NOWY keystore. Zapisz go w sekrecie KEYSTORE_B64."
+            base64 -w0 android/app/keystore.jks > keystore.b64.txt
+          fi
+
+      - name: Zaleznosci
+        run: flutter pub get
+
+      - name: Analiza
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings || true
+
+      - name: Build release APK
+        env:
+          KEYSTORE_PASSWORD: eksplorator
+          KEY_ALIAS: eksplorator
+          KEY_PASSWORD: eksplorator
+        run: flutter build apk --release
+
+      - name: Zmien nazwe APK
+        run: |
+          mv build/app/outputs/flutter-apk/app-release.apk \
+             build/app/outputs/flutter-apk/eksplorator.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: eksplorator-apk
+          path: build/app/outputs/flutter-apk/eksplorator.apk
+
+      - name: Upload keystore (tylko pierwszy build)
+        if: hashFiles('keystore.b64.txt') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: keystore-base64
+          path: keystore.b64.txt
