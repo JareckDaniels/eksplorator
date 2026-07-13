@@ -4,6 +4,7 @@ import 'package:open_filex/open_filex.dart';
 import 'package:path/path.dart' as p;
 
 import '../models/file_entry.dart';
+import '../services/apk_service.dart';
 import '../services/file_service.dart';
 import '../services/settings_service.dart';
 import '../widgets/file_tile.dart';
@@ -157,9 +158,24 @@ class _SearchScreenState extends State<SearchScreen> {
                         trailing: w.isDir
                             ? null
                             : IconButton(
-                                icon: const Icon(Icons.open_in_new_rounded, size: 20),
-                                tooltip: 'Otwórz',
-                                onPressed: () => OpenFilex.open(w.path),
+                                icon: Icon(
+                                  w.isApk
+                                      ? Icons.download_rounded
+                                      : Icons.open_in_new_rounded,
+                                  size: 20,
+                                ),
+                                tooltip: w.isApk ? 'Zainstaluj' : 'Otwórz',
+                                onPressed: () async {
+                                  if (w.isApk) {
+                                    if (!await ApkService.czyMozeInstalowac()) {
+                                      await ApkService.otworzUstawienieInstalacji();
+                                      return;
+                                    }
+                                    await ApkService.zainstaluj(w.path);
+                                  } else {
+                                    await OpenFilex.open(w.path);
+                                  }
+                                },
                               ),
                       );
                     },

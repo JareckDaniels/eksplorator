@@ -5,6 +5,7 @@ import 'package:path/path.dart' as p;
 import 'package:share_plus/share_plus.dart';
 
 import '../models/file_entry.dart';
+import '../services/apk_service.dart';
 import '../services/clipboard_service.dart';
 import '../services/file_service.dart';
 import '../services/settings_service.dart';
@@ -142,9 +143,101 @@ class _BrowserScreenState extends State<BrowserScreen> {
       await _menuZip(w);
       return;
     }
+    if (w.isApk) {
+      await _zainstalujApk(w);
+      return;
+    }
     final wynik = await OpenFilex.open(w.path);
     if (wynik.type != ResultType.done && mounted) {
       _pokazSnack('Nie znaleziono aplikacji do otwarcia tego pliku');
+    }
+  }
+
+  /// Instalacja APK. Android 8+ wymaga zgody "Instaluj nieznane aplikacje"
+  /// przyznanej osobno dla tej aplikacji - jesli jej nie ma, prowadzimy
+  /// uzytkownika do wlasciwego ekranu ustawien.
+  Future<void> _zainstalujApk(FileEntry w) async {
+    final moze = await ApkService.czyMozeInstalowac();
+
+    if (!moze) {
+      if (!mounted) return;
+      final idz = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Potrzebna zgoda'),
+          content: const Text(
+            'Aby instalować aplikacje, Android wymaga włączenia opcji '
+            '"Instaluj nieznane aplikacje" dla Eksploratora.\n\n'
+            'Przejść do ustawień?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Anuluj'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Ustawienia'),
+            ),
+          ],
+        ),
+      );
+      if (idz == true) await ApkService.otworzUstawienieInstalacji();
+      return;
+    }
+
+    if (!mounted) return;
+    final wybor = await showModalBottomSheet<String>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    w.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(ctx).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    w.sizeLabel,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(ctx).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.download_rounded),
+              title: const Text('Zainstaluj'),
+              subtitle: const Text('Uruchomi instalator systemowy'),
+              onTap: () => Navigator.pop(ctx, 'instaluj'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.open_in_new_rounded),
+              title: const Text('Otwórz inną aplikacją'),
+              onTap: () => Navigator.pop(ctx, 'otworz'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (wybor == null || !mounted) return;
+
+    if (wybor == 'instaluj') {
+      final blad = await ApkService.zainstaluj(w.path);
+      if (blad != null && mounted) _pokazSnack(blad);
+    } else {
+      await OpenFilex.open(w.path);
     }
   }
 

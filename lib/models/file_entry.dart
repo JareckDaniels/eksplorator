@@ -41,6 +41,8 @@ class FileEntry {
 
   bool get isZip => ext == 'zip';
 
+  bool get isApk => ext == 'apk';
+
   bool get isImage =>
       const {'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'heic'}.contains(ext);
 
