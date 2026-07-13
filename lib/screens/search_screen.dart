@@ -68,7 +68,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final wzgledny = widget.katalog.replaceFirst('/storage/emulated/0', 'Pamiec');
+    final wzgledny = widget.katalog.replaceFirst('/storage/emulated/0', 'Pamięć');
 
     return Scaffold(
       appBar: AppBar(
@@ -117,7 +117,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     child: Text(
                       _kontroler.text.trim().length < 2
                           ? 'Wpisz min. 2 znaki'
-                          : (_szuka ? 'Szukam...' : 'Brak wynikow'),
+                          : (_szuka ? 'Szukam...' : 'Brak wyników'),
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.outline,
                       ),
@@ -129,7 +129,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       final w = _wyniki[i];
                       final folder = p
                           .dirname(w.path)
-                          .replaceFirst('/storage/emulated/0', 'Pamiec');
+                          .replaceFirst('/storage/emulated/0', 'Pamięć');
                       return ListTile(
                         leading: FileIcon(
                           wpis: w,
@@ -158,7 +158,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             ? null
                             : IconButton(
                                 icon: const Icon(Icons.open_in_new_rounded, size: 20),
-                                tooltip: 'Otworz',
+                                tooltip: 'Otwórz',
                                 onPressed: () => OpenFilex.open(w.path),
                               ),
                       );

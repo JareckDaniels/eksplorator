@@ -114,16 +114,16 @@ class _BramkaUprawnienState extends State<BramkaUprawnien>
               ),
               const SizedBox(height: 24),
               Text(
-                'Potrzebny dostep do plikow',
+                'Potrzebny dostęp do plików',
                 style: Theme.of(context).textTheme.titleLarge,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 12),
               Text(
-                'Aplikacja musi miec dostep do calej pamieci, '
-                'zeby przegladac, kopiowac i pakowac pliki.\n\n'
-                'W ustawieniach systemu wlacz "Zezwol na dostep do '
-                'wszystkich plikow".',
+                'Aplikacja musi mieć dostęp do całej pamięci, '
+                'żeby przeglądać, kopiować i pakować pliki.\n\n'
+                'W ustawieniach systemu włącz "Zezwól na dostęp do '
+                'wszystkich plików".',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
@@ -131,12 +131,12 @@ class _BramkaUprawnienState extends State<BramkaUprawnien>
               FilledButton.icon(
                 onPressed: _popros,
                 icon: const Icon(Icons.lock_open_rounded),
-                label: const Text('Przyznaj dostep'),
+                label: const Text('Przyznaj dostęp'),
               ),
               const SizedBox(height: 8),
               TextButton(
                 onPressed: PermissionService.otworzUstawienia,
-                child: const Text('Otworz ustawienia aplikacji'),
+                child: const Text('Otwórz ustawienia aplikacji'),
               ),
             ],
           ),

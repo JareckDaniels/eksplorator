@@ -78,7 +78,7 @@ class _BrowserScreenState extends State<BrowserScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _blad = 'Brak dostepu do tego katalogu';
+        _blad = 'Brak dostępu do tego katalogu';
         _wpisy = [];
         _laduje = false;
       });
@@ -181,7 +181,7 @@ class _BrowserScreenState extends State<BrowserScreen> {
               const SizedBox(height: 12),
               Text(
                 wart.biezacy.isEmpty
-                    ? 'Koncze...'
+                    ? 'Kończę...'
                     : '${wart.wykonane + 1} / ${wart.wszystkie}  ·  ${wart.biezacy}',
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -198,7 +198,7 @@ class _BrowserScreenState extends State<BrowserScreen> {
       if (mounted) Navigator.of(context).pop();
     } catch (e) {
       if (mounted) Navigator.of(context).pop();
-      _pokazSnack('Blad: ${e is FileSystemException ? e.message : e}');
+      _pokazSnack('Błąd: ${e is FileSystemException ? e.message : e}');
     } finally {
       postep.dispose();
     }
@@ -227,11 +227,11 @@ class _BrowserScreenState extends State<BrowserScreen> {
     final potwierdz = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Usunac?'),
+        title: const Text('Usunąć?'),
         content: Text(
           ile == 1
-              ? 'Element zostanie trwale usuniety.'
-              : '$ile elementow zostanie trwale usunietych.',
+              ? 'Element zostanie trwale usunięty.'
+              : '$ile elementów zostanie trwale usuniętych.',
         ),
         actions: [
           TextButton(
@@ -243,7 +243,7 @@ class _BrowserScreenState extends State<BrowserScreen> {
             style: FilledButton.styleFrom(
               backgroundColor: Theme.of(ctx).colorScheme.error,
             ),
-            child: const Text('Usun'),
+            child: const Text('Usuń'),
           ),
         ],
       ),
@@ -262,7 +262,7 @@ class _BrowserScreenState extends State<BrowserScreen> {
     if (_zaznaczone.length != 1) return;
     final stara = _zaznaczone.first;
     final nowa = await _dialogTekstowy(
-      tytul: 'Zmien nazwe',
+      tytul: 'Zmień nazwę',
       wartosc: p.basename(stara),
       etykieta: 'Nowa nazwa',
     );
@@ -272,7 +272,7 @@ class _BrowserScreenState extends State<BrowserScreen> {
     try {
       await FileService.zmienNazwe(stara, nowa);
     } catch (e) {
-      _pokazSnack('Blad: ${e is FileSystemException ? e.message : e}');
+      _pokazSnack('Błąd: ${e is FileSystemException ? e.message : e}');
     }
     await _odswiez();
   }
@@ -287,7 +287,7 @@ class _BrowserScreenState extends State<BrowserScreen> {
     try {
       await FileService.nowyFolder(_sciezka, nazwa);
     } catch (e) {
-      _pokazSnack('Blad: ${e is FileSystemException ? e.message : e}');
+      _pokazSnack('Błąd: ${e is FileSystemException ? e.message : e}');
     }
     await _odswiez();
   }
@@ -339,12 +339,12 @@ class _BrowserScreenState extends State<BrowserScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.list_rounded),
-              title: const Text('Pokaz zawartosc'),
+              title: const Text('Pokaż zawartość'),
               onTap: () => Navigator.pop(ctx, 'zawartosc'),
             ),
             ListTile(
               leading: const Icon(Icons.open_in_new_rounded),
-              title: const Text('Otworz inna aplikacja'),
+              title: const Text('Otwórz inną aplikacją'),
               onTap: () => Navigator.pop(ctx, 'otworz'),
             ),
           ],
@@ -374,7 +374,7 @@ class _BrowserScreenState extends State<BrowserScreen> {
           showDialog(
             context: context,
             builder: (ctx) => AlertDialog(
-              title: Text('${lista.length} elementow'),
+              title: Text('${lista.length} elementów'),
               content: SizedBox(
                 width: double.maxFinite,
                 height: 400,
@@ -398,7 +398,7 @@ class _BrowserScreenState extends State<BrowserScreen> {
             ),
           );
         } catch (e) {
-          _pokazSnack('Nie udalo sie odczytac archiwum');
+          _pokazSnack('Nie udało się odczytać archiwum');
         }
         break;
 
@@ -414,7 +414,7 @@ class _BrowserScreenState extends State<BrowserScreen> {
         .map((s) => XFile(s))
         .toList();
     if (pliki.isEmpty) {
-      _pokazSnack('Mozna udostepniac tylko pliki, nie foldery');
+      _pokazSnack('Można udostępniać tylko pliki, nie foldery');
       return;
     }
     setState(() => _zaznaczone.clear());
@@ -466,9 +466,9 @@ class _BrowserScreenState extends State<BrowserScreen> {
   // ---------- UI ----------
 
   List<String> get _okruchy {
-    if (_sciezka == kKorzen) return ['Pamiec'];
+    if (_sciezka == kKorzen) return ['Pamięć'];
     final wzgledna = _sciezka.replaceFirst('$kKorzen/', '');
-    return ['Pamiec', ...wzgledna.split('/')];
+    return ['Pamięć', ...wzgledna.split('/')];
   }
 
   String _sciezkaOkrucha(int index) {
@@ -551,7 +551,7 @@ class _BrowserScreenState extends State<BrowserScreen> {
     }
 
     return AppBar(
-      title: Text(p.basename(_sciezka) == '0' ? 'Pamiec' : p.basename(_sciezka)),
+      title: Text(p.basename(_sciezka) == '0' ? 'Pamięć' : p.basename(_sciezka)),
       actions: [
         IconButton(
           icon: const Icon(Icons.search_rounded),
@@ -576,7 +576,7 @@ class _BrowserScreenState extends State<BrowserScreen> {
                 ? Icons.star_rounded
                 : Icons.star_border_rounded,
           ),
-          tooltip: 'Zakladka',
+          tooltip: 'Zakładka',
           onPressed: () => ust.przelaczZakladke(_sciezka),
         ),
         PopupMenuButton<String>(
@@ -682,7 +682,7 @@ class _BrowserScreenState extends State<BrowserScreen> {
               () {
                 schowek.wytnij(_zaznaczone.toList());
                 setState(() => _zaznaczone.clear());
-                _pokazSnack('Wyciete - przejdz do celu i wklej');
+                _pokazSnack('Wycięte — przejdź do celu i wklej');
               },
             ),
             _przyciskAkcji(
@@ -691,10 +691,10 @@ class _BrowserScreenState extends State<BrowserScreen> {
               tylkoJeden ? _zmienNazwe : null,
             ),
             _przyciskAkcji(Icons.folder_zip_rounded, 'ZIP', _spakuj),
-            _przyciskAkcji(Icons.share_rounded, 'Udostepnij', _udostepnij),
+            _przyciskAkcji(Icons.share_rounded, 'Udostępnij', _udostepnij),
             _przyciskAkcji(
               Icons.delete_outline_rounded,
-              'Usun',
+              'Usuń',
               _usunZaznaczone,
               kolor: Theme.of(context).colorScheme.error,
             ),
@@ -806,7 +806,7 @@ class _BrowserScreenState extends State<BrowserScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.phone_android_rounded),
-            title: const Text('Pamiec wewnetrzna'),
+            title: const Text('Pamięć wewnętrzna'),
             onTap: () {
               Navigator.pop(context);
               _wejdz(kKorzen);
@@ -814,7 +814,7 @@ class _BrowserScreenState extends State<BrowserScreen> {
           ),
           for (final skrot in const [
             ('Pobrane', 'Download', Icons.download_rounded),
-            ('Zdjecia', 'DCIM', Icons.photo_camera_rounded),
+            ('Zdjęcia', 'DCIM', Icons.photo_camera_rounded),
             ('Obrazy', 'Pictures', Icons.image_rounded),
             ('Dokumenty', 'Documents', Icons.description_rounded),
             ('Muzyka', 'Music', Icons.music_note_rounded),
@@ -834,7 +834,7 @@ class _BrowserScreenState extends State<BrowserScreen> {
             const Padding(
               padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
               child: Text(
-                'ZAKLADKI',
+                'ZAKŁADKI',
                 style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
               ),
             ),
